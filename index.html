@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Efficient 4D Scaffold Gaussian Splatting with Dynamic-Aware Anchor Growing">
+  <meta name="keywords" content="Efficient 4D Scaffold Gaussian Splatting with Dynamic-Aware Anchor Growing">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Efficient 4D Scaffold Gaussian Splatting with Dynamic-Aware Anchor Growing</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="./static/css/bootstrap-4.4.1.css">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+  
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <script src="./static/js/app.js"></script>
+  <script src="./static/js/video_comparison.js"></script>
+
+  <link rel="stylesheet" href="./static/css/dics.original.css">
+  <script src="./static/js/event_handler.js"></script>
+  <script src="./static/js/dics.original.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
+
+  <style>
+.swiper-container {
+  width: 100%;
+  overflow: hidden; 
+}
+
+.swiper-wrapper {
+  display: flex;
+}
+
+.swiper-slide {
+  flex: 0 0 100%; 
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide video {
+  width: 100%;
+  height: auto;
+}
+
+.custom-swiper-button {
+  width: 40px;
+  height: 40px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.custom-swiper-button:after {
+  font-size: 20px;
+  color: #505050;
+  font-family: Arial, sans-serif;
+}
+
+.swiper-button-prev.custom-swiper-button:after {
+  content: '◀';
+}
+
+.swiper-button-next.custom-swiper-button:after {
+  content: '▶';
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.swiper-button-prev {
+  left: 10px;
+}
+
+.swiper-button-next {
+  right: 10px;
+}
+.video-container {
+    width: 100%;
+    position: relative;
+}
+
+.video-container canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.video-container video {
+    display: none;
+}
+
+.justify-both {
+  text-align: justify;
+}
+
+.justify-both:after{
+	content: '';
+  display: inline-block;
+  width: 100%;
+}
+
+  </style>
+</head>
+<body>
+
+
+<!-- title, authors -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title" style="margin-bottom: 0"><strong>Efficient 4D Scaffold Gaussian Splatting</strong></h1>
+          <h2 class="title is-2 publication-title" style="margin-top: 0; margin-bottom: 0">with Dynamic-Aware Anchor Growing</h2>
+          <br>
+          <h2 class="title is-4" style="margin-top: 0; margin-bottom: 0">AAAI 2026 Submission</h2>
+          <br>
+
+          <!-- <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="link"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="link"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="link"
+                   class="external-link button is-normal is-rounded is-dark disabled">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- teaser -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <img src="././resources/images/teaser.png" class="center">
+          <h2 class="subtitle has-text-centered" style="margin-top: 15px">
+            TL;DR: Our method achieves superior image quality, high rendering speed, and compelling storage with single-frame COLMAP points, surpassing other 4D Gaussian methods (STG, 4DGS, Ex4DGS).
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3" style="margin-top: -30px">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Modeling dynamic scenes through 4D Gaussians offers high visual fidelity and fast rendering speeds, but comes with significant storage overhead.
+Recent approaches mitigate this cost by aggressively reducing the number of Gaussians.
+However, this inevitably removes Gaussians essential for high-quality rendering, leading to severe degradation in dynamic regions.
+In this paper, we introduce a novel 4D anchor-based framework that tackles the storage cost in different perspective.
+Rather than reducing the number of Gaussians, our method retains a sufficient quantity to accurately model dynamic contents, while compressing them into compact, grid-aligned 4D anchor features.
+Each anchor is processed by an MLP to spawn a set of neural 4D Gaussians, which represent a local spatiotemporal region.
+We design these neural 4D Gaussians to capture temporal changes with minimal parameters, making them well-suited for the MLP-based spawning.
+Moreover, we introduce a dynamic-aware anchor growing strategy to effectively assign additional anchors to under-reconstructed dynamic regions.
+Our method adjusts the accumulated gradients with Gaussians' temporal coverage, significantly improving reconstruction quality in dynamic regions.
+Experimental results highlight that our method achieves state-of-the-art visual quality in dynamic regions, outperforming all baselines by a large margin with practical storage costs.
+          </p>
+        </div>
+      </div>
+    </div>    
+  </div>
+</section>
+
+<!-- Ours Spiral -->
+<section class="section">
+  <div class="hero-body">
+    <h2 class="title is-2 has-text-centered" style="margin-top: -30px">Ours spiral</h2> <br>
+    <h3 class="title is-4 has-text-centered">Neural 3D Video dataset</h3>
+    <br>
+    <div class="container is-max-desktop">
+      <div class="columns is-centered ">
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <video src="./resources/n3dv/coffee_martini_spiral.mp4" autoplay controls muted loop playsinline></video>
+            </div>
+            <!-- <div class="swiper-slide">
+              <video src="./resources/n3dv/cook_spinach_spiral.mp4" autoplay controls muted loop playsinline></video>
+            </div> -->
+            <div class="swiper-slide">
+              <video src="./resources/n3dv/cut_roasted_beef_spiral.mp4" autoplay controls muted loop playsinline></video>
+            </div>
+            <!-- <div class="swiper-slide">
+              <video src="./resources/n3dv/flame_salmon_spiral.mp4" autoplay controls muted loop playsinline></video>
+            </div> -->
+            <div class="swiper-slide">
+              <video src="./resources/n3dv/flame_steak_spiral.mp4" autoplay controls muted loop playsinline></video>
+            </div>
+            <!-- <div class="swiper-slide">
+              <video src="./resources/n3dv/sear_steak_spiral.mp4" autoplay controls muted loop playsinline></video>
+            </div> -->
+          </div>
+          <div class="swiper-button-prev custom-swiper-button"></div>
+          <div class="swiper-button-next custom-swiper-button"></div>
+        </div>
+    </div>
+  </div>
+
+  <br><br><br>
+  <h3 class="title is-4 has-text-centered">Technicolor dataset</h3>
+  <br>
+  <div class="container is-max-desktop">
+    <div class="columns is-centered ">
+      <div class="swiper-container">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <video src="./resources/technicolor/Birthday_spiral.mp4" autoplay controls muted loop playsinline></video>
+          </div>
+          <div class="swiper-slide">
+            <video src="./resources/technicolor/Fabien_spiral.mp4" autoplay controls muted loop playsinline></video>
+          </div>
+          <!-- <div class="swiper-slide">
+            <video src="./resources/technicolor/Painter_spiral.mp4" autoplay controls muted loop playsinline></video>
+          </div> -->
+          <div class="swiper-slide">
+            <video src="./resources/technicolor/Theater_spiral.mp4" autoplay controls muted loop playsinline></video>
+          </div>
+          <div class="swiper-slide">
+            <video src="./resources/technicolor/Train_spiral.mp4" autoplay controls muted loop playsinline></video>
+          </div>
+        </div>
+        <div class="swiper-button-prev custom-swiper-button"></div>
+        <div class="swiper-button-next custom-swiper-button"></div>
+      </div>
+  </div>
+</div>
+</div>
+</section>
+
+<!-- overview -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-2 has-text-centered" style="margin-top: -30px">Method</h2> <br>
+        <h3 class="title is-4 has-text-centered">4D Anchor-based framework</h3>
+        <div class="content has-text-justified">
+          <img src="././resources/images/overview.png" class="center">
+        </div>
+      </div>
+    </div>    
+  </div>
+</section>
+
+
+<!-- comparison videos -->
+<section class="section">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered ">
+          <div class="container is-max-desktop">
+            <h2 class="title is-2 has-text-centered" style="margin-top: -30px">Comparison Results</h2>
+            <h2 class="subtitle has-text-justified">
+              <br>
+              <img src="./resources/images/table.png" alt="Rendered Results" style="max-width:100%;height:auto;">
+              <br>
+              Our approach achieves high-quality rendering with storage efficiency on the Technicolor dataset.
+              <br><br>
+            </h2>
+            <br>
+            <h3 class="title is-4 has-text-centered">Neural 3D Video dataset</h3>
+            <h2 class="subtitle has-text-justified">
+              <br>
+              <u>Please move the slider in the center to compare the videos.</u>
+              <br>
+              All reported PSNR values are for the dynamic region of the scenes.
+              <br>
+            </h2>
+
+            <!-- <div class="container is-max-desktop">
+              <div class="hero-body">
+                <div class="columns is-centered has-text-centered">
+                  <video class="video" id="xyalias6" loop playsinline autoplay muted src="./resources/n3dv/coffee_martini_stg_ours.mp4" onplay="resizeAndPlay(this)" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></video>
+                  <canvas height=0 class="videoMerge" id="xyalias6Merge" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+                </div>
+                <div class="subtitle justify-both">STG(25.01dB) <i>coffee_martini</i> Ours(27.07dB)</div>
+              </div>
+            </div> -->
+
+            <div class="container is-max-desktop">
+              <div class="hero-body">
+                <div class="columns is-centered has-text-centered">
+                  <video class="video" id="xyalias8" loop playsinline autoplay muted src="./resources/n3dv/cook_spinach_stg_ours.mp4" onplay="resizeAndPlay(this)" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></video>
+                  <canvas height=0 class="videoMerge" id="xyalias8Merge" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+                </div>
+                <div class="subtitle justify-both"><b>STG(25.02dB) <i>cook_spinach</i> Ours(27.39dB)</b></div>
+              </div>
+            </div>
+
+            <div class="container is-max-desktop">
+              <div class="hero-body">
+                <div class="columns is-centered has-text-centered">
+                  <video class="video" id="xyalias9" loop playsinline autoplay muted src="./resources/n3dv/flame_salmon_ex4dgs_ours.mp4" onplay="resizeAndPlay(this)" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></video>
+                  <canvas height=0 class="videoMerge" id="xyalias9Merge" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+                </div>
+                <div class="subtitle justify-both"><b>Ex4DGS(22.09dB) <i>flame_salmon</i> Ours(24.82dB)</b></div>
+              </div>
+            </div>
+
+            <div class="container is-max-desktop">
+              <div class="hero-body">
+                <div class="columns is-centered has-text-centered">
+                  <video class="video" id="xyalias7" loop playsinline autoplay muted src="./resources/n3dv/sear_steak_4dgs_ours.mp4" onplay="resizeAndPlay(this)" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></video>
+                  <canvas height=0 class="videoMerge" id="xyalias7Merge" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+                </div>
+                <div class="subtitle justify-both"><b>4DGS(29.31dB) <i>sear_steak</i> Ours(31.44dB)</b></div>
+              </div>
+            </div>
+
+            <!-- <div class="container is-max-desktop">
+              <div class="hero-body">
+                <div class="columns is-centered has-text-centered">
+                  <video class="video" id="xyalias10" loop playsinline autoplay muted src="./resources/n3dv/cook_spinach_ex4dgs_ours.mp4" onplay="resizeAndPlay(this)" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></video>
+                  <canvas height=0 class="videoMerge" id="xyalias10Merge" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+                </div>
+                <div class="subtitle justify-both"><b>Ex4DGS(26.10dB) <i>cook_spinach</i> Ours(27.39dB)</b></div>
+              </div>
+            </div> -->
+
+            <br><br><br><br>
+            <h3 class="title is-4 has-text-centered">Technicolor dataset</h3>
+
+            <!-- <div class="container is-max-desktop">
+            <div class="hero-body">
+              <div class="columns is-centered has-text-centered">
+                <video class="video" id="xyalias11" loop playsinline autoplay muted src="./resources/technicolor/Painter_ex4dgs_ours.mp4" onplay="resizeAndPlay(this)" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></video>
+                <canvas height=0 class="videoMerge" id="xyalias11Merge" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+              </div>
+              <div class="subtitle justify-both"><b>Ex4DGS(33.33dB) <i>Painter</i> Ours(35.19dB)</b></div>
+            </div>
+          </div> -->
+
+            <div class="container is-max-desktop">
+            <div class="hero-body">
+              <div class="columns is-centered has-text-centered">
+                <video class="video" id="xyalias12" loop playsinline autoplay muted src="./resources/technicolor/Theater_stg_ours.mp4" onplay="resizeAndPlay(this)" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></video>
+                <canvas height=0 class="videoMerge" id="xyalias12Merge" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+              </div>
+              <div class="subtitle justify-both"><b>STG(24.19dB) <i>Theater</i> Ours(31.12dB)</b></div>
+            </div>
+          </div>
+
+          <!-- <div class="container is-max-desktop">
+            <div class="hero-body">
+              <div class="columns is-centered has-text-centered">
+                <video class="video" id="xyalias13" loop playsinline autoplay muted src="./resources/technicolor/Birthday_4dgs_ours.mp4" onplay="resizeAndPlay(this)" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></video>
+                <canvas height=0 class="videoMerge" id="xyalias13Merge" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+              </div>
+              <div class="subtitle justify-both"><b>4DGS(29.27dB,13GB) <i>Birthday</i> Ours(29.51dB,182MB)</b></div>
+            </div>
+          </div> -->
+
+          <!-- <br><br><br><br>
+            <div class="is-centered has-text-centered">
+                <h3 class="title is-4 has-text-centered">Comparison with STG</h3>
+                    <br>
+                    <img class="centered-image" src="resources/images/stg_ours.png" alt="comparison_with_stg" style="max-width:60%;height:auto;">
+                    <br>
+                  <h2 class="subtitle has-text-justified">
+                    In a setting where 300 frames are learned, ours demonstrates better visual quality compared to STG. <br>
+                    *Note that STG uses a batch size of 2 while our model uses a batch size of 1.
+                </h2>
+            </div>
+  
+            <br><br>
+              <video src="./resources/stg/stg_ours.mp4" autoplay controls muted loop playsinline></video>
+            </div>
+            </div> -->
+        </div>
+      </div>
+    </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+
+<script>
+  const swiper = new Swiper('.swiper-container', {
+    loop: false,
+    slidesPerView: 1,
+    spaceBetween: 0,
+    allowTouchMove: true,
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    on: {
+      slideChangeTransitionStart: function () {
+      },
+      slideChangeTransitionEnd: function () {
+        const currentSlide = this.slides[this.activeIndex];
+        const videos = currentSlide.querySelectorAll('video');
+        videos.forEach((video) => {
+          if (video.paused) {
+            video.play(); 
+          }
+        });
+      },
+    },
+  });
+</script>
+
+</body>
+</html>
